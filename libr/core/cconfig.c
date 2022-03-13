@@ -3214,20 +3214,6 @@ static bool cb_log_config_file(void *coreptr, void *nodeptr) {
 	return true;
 }
 
-static bool cb_log_config_srcinfo(void *coreptr, void *nodeptr) {
-	RConfigNode *node = (RConfigNode *)nodeptr;
-	const char *value = node->value;
-	switch (value[0]) {
-	case 't':
-	case 'T':
-		r_log_set_srcinfo (true);
-		break;
-	default:
-		r_log_set_srcinfo (false);
-	}
-	return true;
-}
-
 static bool cb_log_config_colors(void *coreptr, void *nodeptr) {
 	RConfigNode *node = (RConfigNode *)nodeptr;
 	const char *value = node->value;
@@ -3709,10 +3695,6 @@ R_API int r_core_config_init(RCore *core) {
 	// R2_LOGFILE / log.file
 	p = r_sys_getenv ("R2_LOGFILE");
 	SETCB ("log.file", r_str_get (p), cb_log_config_file, "Logging output filename / path");
-	free (p);
-	// R2_LOGSRCINFO / log.srcinfo
-	p = r_sys_getenv ("R2_LOGSRCINFO");
-	SETCB ("log.srcinfo", r_str_get_fail (p, "false"), cb_log_config_srcinfo, "Should the log output contain src info (filename:lineno)");
 	free (p);
 	// R2_LOGCOLORS / log.colors
 	p = r_sys_getenv ("R2_LOGCOLORS");

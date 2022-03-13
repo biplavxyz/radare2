@@ -25,6 +25,14 @@ R_API void r_log_init(void) {
 	}
 }
 
+R_API void r_log_fini(void) {
+	if (log) {
+		free (log->file);
+		free (log);
+		log = NULL;
+	}
+}
+
 // R_LOG_WARN ("hello world");
 // eprintf ("hello world\n");
 
@@ -50,11 +58,22 @@ static int log_levels(const char *s) {
 	return res;
 }
 
+R_API void r_log_set_level(RLogLevel level) {
+	log->level = level;
+}
 R_API void r_log_set_traplevel(RLogLevel level) {
 	log->level = level;
 }
 R_API void r_log_set_filter(const char *s) {
 	log->filter = s? log_levels (s): 0;
+}
+R_API void r_log_set_file(const char *filename) {
+	free (log->file);
+	log->file = strdup (filename);
+}
+
+R_API void r_log_set_colors(bool color) {
+	log->color = color;
 }
 
 R_API bool r_log_match(int level, const char *origin) { // , const char *sub_origin, const char *fmt, ...) {
@@ -118,9 +137,6 @@ R_API void r_log_set_srcinfo(bool show_info) {
 	cfg_logsrcinfo = show_info;
 }
 
-R_API void r_log_set_colors(bool show_info) {
-	cfg_logcolors = show_info;
-}
 
 /**
  * \brief Add a logging callback

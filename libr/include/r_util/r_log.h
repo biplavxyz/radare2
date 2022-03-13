@@ -17,7 +17,9 @@ extern "C" {
 #define R_LOG_DEBUG(f,...) if (r_log_match(R_LOGLVL_DEBUG, R_LOG_ORIGIN)) {r_log_message(R_LOGLVL_DEBUG, R_LOG_ORIGIN, f, ##__VA_ARGS__);}
 #define R_LOG_ERROR(f,...) if (r_log_match(R_LOGLVL_ERROR, R_LOG_ORIGIN)) {r_log_message(R_LOGLVL_ERROR, R_LOG_ORIGIN, f, ##__VA_ARGS__);}
 #define R_LOG_FATAL(f,...) if (r_log_match(R_LOGLVL_FATAL, R_LOG_ORIGIN)) {r_log_message(R_LOGLVL_FATAL, R_LOG_ORIGIN, f, ##__VA_ARGS__);}
+
 R_API void r_log_init(void);
+R_API void r_log_fini(void);
 R_API bool r_log_match(int level, const char *origin);
 // R_API void r_log_message(int level, ut8 origin, const char *sub_origin, const char *fmt, ...);
 R_API void r_log_message(int level, const char *origin, const char *fmt, ...);
@@ -42,7 +44,9 @@ typedef bool (*RLogCallback)(void *user, int type, const char *origin, const cha
 
 typedef struct r_log_t {
 	int level; // skip messages lower than this level
+	int traplevel; // skip messages lower than this level
 	void *user;
+	char *file;
 	unsigned int filter;
 	bool color; // colorize depending on msg level
 	RLogCallback cbs[256];
@@ -82,10 +86,10 @@ typedef void (*RLogCallback) (const char *output, const char *funcname, const ch
 
 
 // Called by r_core to set the configuration variables
-R_API void r_log_set_level(RLogLevel level);
 R_API void r_log_set_file(const char *filename);
 R_API void r_log_set_srcinfo(bool show_info);
 R_API void r_log_set_colors(bool show_colors);
+R_API void r_log_set_level(RLogLevel level);
 R_API void r_log_set_traplevel(RLogLevel level);
 // TODO: r_log_set_options(enum RLogOptions)
 
