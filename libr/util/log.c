@@ -59,20 +59,25 @@ static int log_levels(const char *s) {
 }
 
 R_API void r_log_set_level(RLogLevel level) {
+	r_log_init ();
 	log->level = level;
 }
 R_API void r_log_set_traplevel(RLogLevel level) {
+	r_log_init ();
 	log->level = level;
 }
 R_API void r_log_set_filter(const char *s) {
+	r_log_init ();
 	log->filter = s? log_levels (s): 0;
 }
 R_API void r_log_set_file(const char *filename) {
+	r_log_init ();
 	free (log->file);
 	log->file = strdup (filename);
 }
 
 R_API void r_log_set_colors(bool color) {
+	r_log_init ();
 	log->color = color;
 }
 
@@ -97,7 +102,7 @@ R_API void r_log_message(int level, const char *origin, const char *fmt, ...) {
 	if (!cb) {
 		cb = log->cb;
 	}
-int type = 3;
+	int type = 3;
 	if (cb) {
 		cb (log->user, type, NULL, fmt);
 	}
