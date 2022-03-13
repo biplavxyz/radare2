@@ -1,4 +1,6 @@
-/* radare2 - LGPL - Copyright 2009-2021 - pancake, nibble, dso */
+/* radare2 - LGPL - Copyright 2009-2022 - pancake, nibble, dso */
+
+#define R_LOG_ORIGIN "bin"
 
 #include <r_bin.h>
 #include <r_types.h>

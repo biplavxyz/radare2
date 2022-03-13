@@ -3,9 +3,89 @@
 #define LOG_CONFIGSTR_SIZE 128
 #define LOG_OUTPUTBUF_SIZE 512
 
+#define R_LOG_ORIGIN "util.log"
+
 #include <r_core.h>
 #include <stdarg.h>
 
+#if 0
+FATAL
+ERROR
+DEBUG
+WARN
+INFO
+#endif
+
+static R_TH_LOCAL RLog *log = NULL;
+
+// shouldnt be necessary as global thread-local instance
+R_API void r_log_init(void) {
+	if (!log) {
+		log = R_NEW0 (RLog);
+	}
+}
+
+// R_LOG_WARN ("hello world");
+// eprintf ("hello world\n");
+
+
+static int log_level(int origin) {
+	const char *a = "wied";
+	const char ch = origin & 0xff;
+	const char *b = strchr (a, ch);
+	if (b) {
+		int pos = b - a;
+		return 1 << pos;
+	}
+	return 0;
+}
+
+static int log_levels(const char *s) {
+	int res = 0;
+	const char *p = s;
+	while (*p) {
+		res |= log_level (*p);
+		p++;
+	}
+	return res;
+}
+
+R_API void r_log_set_traplevel(RLogLevel level) {
+	log->level = level;
+}
+R_API void r_log_set_filter(const char *s) {
+	log->filter = s? log_levels (s): 0;
+}
+
+R_API bool r_log_match(int level, const char *origin) { // , const char *sub_origin, const char *fmt, ...) {
+	r_log_init ();
+	//int level = log_level (origin);
+	if (log->filter && (log->filter & level)) {
+		// hidden message
+		return false;
+	}
+	RLogCallback cb = log->cbs[(ut8)(*origin)];
+	if (cb) {
+		return cb (log->user, level, NULL, NULL);
+	}
+	return false;
+}
+
+// R_API void r_log_message(ut8 origin, int type, const char *sub_origin, const char *fmt, ...) {
+R_API void r_log_message(int level, const char *origin, const char *fmt, ...) {
+	r_log_init ();
+	RLogCallback cb = log->cbs[(ut8)(*origin)];
+	if (!cb) {
+		cb = log->cb;
+	}
+int type = 3;
+	if (cb) {
+		cb (log->user, type, NULL, fmt);
+	}
+	eprintf ("%s\n", fmt);
+}
+
+#if 0
 // TODO: Use thread-local storage to make these variables thread-safe
 static R_TH_LOCAL RList *log_cbs = NULL; // Functions to call when outputting log string
 static R_TH_LOCAL int cfg_loglvl = R_LOGLVL_ERROR; // Log level output
@@ -28,9 +108,6 @@ R_API void r_log_set_level(RLogLevel level) {
 	cfg_loglvl = level;
 }
 
-R_API void r_log_set_traplevel(RLogLevel level) {
-	cfg_logtraplvl = level;
-}
 
 R_API void r_log_set_file(const char *filename) {
 	int value_len = r_str_nlen (filename, LOG_CONFIGSTR_SIZE) + 1;
@@ -127,6 +204,7 @@ R_API void r_vlog(const char *funcname, const char *filename,
 		r_sys_breakpoint (); // *oof*
 	}
 }
+#endif
 
 /**
  * \brief Internal logging function used by preprocessor macros

@@ -1,5 +1,7 @@
 /* radare2 - LGPL - Copyright 2009-2022 - pancake, nibble, dso */
 
+#define R_LOG_ORIGIN "bin.obj"
+
 #include <r_bin.h>
 #include <r_util.h>
 #include "i/private.h"

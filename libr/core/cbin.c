@@ -1,5 +1,6 @@
 /* radare - LGPL - Copyright 2011-2022 - earada, pancake */
 
+#define R_LOG_ORIGIN "cbin"
 #include <r_core.h>
 #include <r_config.h>
 #include <r_util.h>
